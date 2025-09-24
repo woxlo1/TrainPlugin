@@ -1,0 +1,18 @@
+name: TrainPlugin
+main: com.woxloi.trainplugin.TrainPlugin
+version: 1.0.0
+api-version: 1.20
+author: woxloi
+commands:
+  train:
+    description: Manage trains
+    usage: /<command> <sub>
+    permission: train.admin
+  station:
+    description: Manage stations
+    usage: /<command> <sub>
+    permission: train.admin
+permissions:
+  train.admin:
+    description: Train admin commands
+    default: op

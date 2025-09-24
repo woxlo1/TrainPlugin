@@ -1,0 +1,8 @@
+stations:
+  - id: tokyo
+    name: 東京駅
+    world: world
+    x: 100.5
+    y: 64.0
+    z: -23.0
+    home: 1

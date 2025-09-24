@@ -1,0 +1,8 @@
+routes:
+  - id: line_a
+    name: "山手線"
+    stations:
+      - tokyo
+      - shinjuku
+    travel_times:
+      - 120 # 秒
