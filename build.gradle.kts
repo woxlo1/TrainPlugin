@@ -9,7 +9,7 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
-    maven(url = "https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven(url = "https://jitpack.io") // 必要なら
 }
 
