@@ -1,7 +1,7 @@
-
 plugins {
     kotlin("jvm") version "1.9.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
 }
 
 group = "com.woxloi"
