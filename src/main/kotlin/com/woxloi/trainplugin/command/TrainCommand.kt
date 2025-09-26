@@ -3,6 +3,7 @@ package com.woxloi.trainplugin.command
 import com.woxloi.trainplugin.TrainPlugin
 import com.woxloi.trainplugin.station.StationManager
 import com.woxloi.trainplugin.train.Route
+import com.woxloi.trainplugin.train.RouteManager
 import com.woxloi.trainplugin.train.Train
 import com.woxloi.trainplugin.train.TrainManager
 import org.bukkit.command.Command
@@ -19,7 +20,7 @@ class TrainCommand : CommandExecutor {
         args: Array<out String>
     ): Boolean {
         if (args.isEmpty()) {
-            sender.sendMessage("${TrainPlugin.prefix}使い方: /train <start|stop|info>")
+            sender.sendMessage("${TrainPlugin.prefix}使い方: /train <start|stop|info|route>")
             return true
         }
 
@@ -31,19 +32,20 @@ class TrainCommand : CommandExecutor {
                 }
 
                 val id = args.getOrNull(1) ?: "default"
-                val stations = StationManager.listStations()
-                if (stations.size < 2) {
-                    sender.sendMessage("${TrainPlugin.prefix}駅が2つ以上必要です")
+                val routeName = args.getOrNull(2) ?: "main"
+
+                val route = RouteManager.getRoute(routeName)
+                if (route == null || route.size() < 2) {
+                    sender.sendMessage("${TrainPlugin.prefix}ルート $routeName が存在しないか、駅が2つ以上必要です")
                     return true
                 }
 
-                val route = Route(stations.toList())
                 val train = Train(id, route)
-                train.spawn(stations.first())
+                train.spawn(route.getStationAt(0)!!)
                 train.start()
                 TrainManager.addTrain(train)
 
-                sender.sendMessage("${TrainPlugin.prefix}電車 $id を出発させました")
+                sender.sendMessage("${TrainPlugin.prefix}電車 $id をルート $routeName で出発させました")
             }
 
             "stop" -> {
@@ -56,6 +58,17 @@ class TrainCommand : CommandExecutor {
                 TrainManager.listTrains().forEach {
                     sender.sendMessage("${TrainPlugin.prefix}${it.info()}")
                 }
+            }
+
+            "route" -> {
+                val stations = StationManager.listStations().toList()
+                if (stations.size < 2) {
+                    sender.sendMessage("${TrainPlugin.prefix}駅が2つ以上必要です")
+                    return true
+                }
+                val route = Route("main", stations.toMutableList())
+                RouteManager.addRoute(route)
+                sender.sendMessage("${TrainPlugin.prefix}ルート main を登録しました (駅数=${stations.size})")
             }
 
             else -> sender.sendMessage("${TrainPlugin.prefix}不明なサブコマンドです")

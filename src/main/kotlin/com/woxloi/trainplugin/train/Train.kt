@@ -33,36 +33,40 @@ class Train(
 
     private fun moveToNextStation() {
         if (!running || entity == null) return
+        if (route.size() < 2) return
 
-        val next = route.stations[(index + 1) % route.stations.size]
+        val next = route.getStationAt((index + 1) % route.size())!!
         val world = Bukkit.getWorld(next.world) ?: return
         val target = Location(world, next.x, next.y, next.z)
 
-        val steps = 40 // 2秒くらいで到着
+        val steps = 40
         val current = entity!!.location.clone()
         val dx = (target.x - current.x) / steps
         val dy = (target.y - current.y) / steps
         val dz = (target.z - current.z) / steps
 
         var count = 0
-        val task = Bukkit.getScheduler().runTaskTimer(
+        lateinit var task: org.bukkit.scheduler.BukkitTask
+
+        task = Bukkit.getScheduler().runTaskTimer(
             Bukkit.getPluginManager().getPlugin("TrainPlugin")!!,
             Runnable {
                 if (!running || entity == null) return@Runnable
+
                 if (count >= steps) {
                     entity!!.teleport(target)
-                    index = (index + 1) % route.stations.size
+                    index = (index + 1) % route.size()
                     Bukkit.getLogger().info("Train $id が駅 ${next.name} に到着しました")
 
-                    // 停車後に次の駅へ
                     Bukkit.getScheduler().runTaskLater(
                         Bukkit.getPluginManager().getPlugin("TrainPlugin")!!,
                         Runnable { if (running) moveToNextStation() },
-                        40L // 2秒停車
+                        40L
                     )
-                    task.cancel()
+                    task.cancel() // ここでキャンセル可能
                     return@Runnable
                 }
+
                 val loc = entity!!.location.clone().add(dx, dy, dz)
                 entity!!.teleport(loc)
                 count++
@@ -76,7 +80,7 @@ class Train(
     }
 
     fun info(): String {
-        val current = route.stations[index]
-        return "Train-$id: 現在地=${current.name}, 停止中=${!running}"
+        val current = route.getStationAt(index)
+        return "Train-$id: 現在地=${current?.name ?: "不明"}, 停止中=${!running}"
     }
 }
