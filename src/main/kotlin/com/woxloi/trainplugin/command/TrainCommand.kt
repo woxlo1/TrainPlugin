@@ -1,10 +1,14 @@
 package com.woxloi.trainplugin.command
 
 import com.woxloi.trainplugin.TrainPlugin
+import com.woxloi.trainplugin.station.StationManager
+import com.woxloi.trainplugin.train.Route
+import com.woxloi.trainplugin.train.Train
 import com.woxloi.trainplugin.train.TrainManager
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
 class TrainCommand : CommandExecutor {
 
@@ -14,56 +18,43 @@ class TrainCommand : CommandExecutor {
         label: String,
         args: Array<out String>
     ): Boolean {
-
         if (args.isEmpty()) {
-            sender.sendMessage("${TrainPlugin.prefix}使い方: /train <start|stop|info|list> <trainID>")
+            sender.sendMessage("${TrainPlugin.prefix}使い方: /train <start|stop|info>")
             return true
         }
 
-        val sub = args[0].lowercase()
-        val trainId = args.getOrNull(1)
-
-        when (sub) {
+        when (args[0].lowercase()) {
             "start" -> {
-                if (trainId == null) {
-                    sender.sendMessage("${TrainPlugin.prefix}trainID を指定してください")
-                } else if (TrainManager.startTrain(trainId)) {
-                    sender.sendMessage("${TrainPlugin.prefix}電車 $trainId を出発させました")
-                } else {
-                    sender.sendMessage("${TrainPlugin.prefix}電車 $trainId は存在しません")
+                if (sender !is Player) {
+                    sender.sendMessage("${TrainPlugin.prefix}このコマンドはプレイヤーのみ使用可能です")
+                    return true
                 }
+
+                val id = args.getOrNull(1) ?: "default"
+                val stations = StationManager.listStations()
+                if (stations.size < 2) {
+                    sender.sendMessage("${TrainPlugin.prefix}駅が2つ以上必要です")
+                    return true
+                }
+
+                val route = Route(stations.toList())
+                val train = Train(id, route)
+                train.spawn(stations.first())
+                train.start()
+                TrainManager.addTrain(train)
+
+                sender.sendMessage("${TrainPlugin.prefix}電車 $id を出発させました")
             }
 
             "stop" -> {
-                if (trainId == null) {
-                    sender.sendMessage("${TrainPlugin.prefix}trainID を指定してください")
-                } else if (TrainManager.stopTrain(trainId)) {
-                    sender.sendMessage("${TrainPlugin.prefix}電車 $trainId を停止させました")
-                } else {
-                    sender.sendMessage("${TrainPlugin.prefix}電車 $trainId は存在しません")
-                }
+                val id = args.getOrNull(1) ?: "default"
+                TrainManager.getTrain(id)?.stop()
+                sender.sendMessage("${TrainPlugin.prefix}電車 $id を停止しました")
             }
 
             "info" -> {
-                if (trainId == null) {
-                    sender.sendMessage("${TrainPlugin.prefix}trainID を指定してください")
-                } else {
-                    val train = TrainManager.getTrain(trainId)
-                    if (train != null) {
-                        sender.sendMessage("${TrainPlugin.prefix}電車 $trainId の状態: ${if (train.isRunning) "走行中" else "停止中"}")
-                    } else {
-                        sender.sendMessage("${TrainPlugin.prefix}電車 $trainId は存在しません")
-                    }
-                }
-            }
-
-            "list" -> {
-                val trains = TrainManager.listTrains()
-                if (trains.isEmpty()) {
-                    sender.sendMessage("${TrainPlugin.prefix}登録されている電車はありません")
-                } else {
-                    sender.sendMessage("${TrainPlugin.prefix}電車一覧:")
-                    trains.forEach { sender.sendMessage("- ${it.id}: ${if (it.isRunning) "走行中" else "停止中"}") }
+                TrainManager.listTrains().forEach {
+                    sender.sendMessage("${TrainPlugin.prefix}${it.info()}")
                 }
             }
 

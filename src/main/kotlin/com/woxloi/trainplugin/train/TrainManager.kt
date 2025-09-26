@@ -9,17 +9,9 @@ object TrainManager {
 
     fun getTrain(id: String): Train? = trains[id]
 
-    fun startTrain(id: String): Boolean {
-        val train = trains[id] ?: return false
-        train.isRunning = true
-        return true
+    fun removeTrain(id: String) {
+        trains.remove(id)?.stop()
     }
 
-    fun stopTrain(id: String): Boolean {
-        val train = trains[id] ?: return false
-        train.isRunning = false
-        return true
-    }
-
-    fun listTrains(): List<Train> = trains.values.toList()
+    fun listTrains(): Collection<Train> = trains.values
 }
