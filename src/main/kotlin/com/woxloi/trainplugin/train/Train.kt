@@ -4,6 +4,7 @@ import com.woxloi.trainplugin.station.Station
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.Player
 
 class Train(
     val id: String,
@@ -12,6 +13,20 @@ class Train(
 ) {
     private var entity: ArmorStand? = null
     private var running = false
+
+    private val passengers = mutableListOf<Player>()
+
+    fun passengers(): List<Player> = passengers
+
+    fun addPassenger(player: Player) {
+        if (!passengers.contains(player)) {
+            passengers.add(player)
+        }
+    }
+
+    fun removePassenger(player: Player) {
+        passengers.remove(player)
+    }
 
     fun spawn(startStation: Station) {
         val world = Bukkit.getWorld(startStation.world) ?: return
@@ -46,9 +61,8 @@ class Train(
         val dz = (target.z - current.z) / steps
 
         var count = 0
-        lateinit var task: org.bukkit.scheduler.BukkitTask
 
-        task = Bukkit.getScheduler().runTaskTimer(
+        val task = Bukkit.getScheduler().runTaskTimer(
             Bukkit.getPluginManager().getPlugin("TrainPlugin")!!,
             Runnable {
                 if (!running || entity == null) return@Runnable
@@ -56,6 +70,7 @@ class Train(
                 if (count >= steps) {
                     entity!!.teleport(target)
                     index = (index + 1) % route.size()
+
                     Bukkit.getLogger().info("Train $id が駅 ${next.name} に到着しました")
 
                     Bukkit.getScheduler().runTaskLater(
@@ -63,15 +78,14 @@ class Train(
                         Runnable { if (running) moveToNextStation() },
                         40L
                     )
-                    task.cancel() // ここでキャンセル可能
                     return@Runnable
                 }
 
-                val loc = entity!!.location.clone().add(dx, dy, dz)
-                entity!!.teleport(loc)
+                entity!!.teleport(entity!!.location.add(dx, dy, dz))
                 count++
             },
-            0L, 1L
+            0L,
+            1L
         )
     }
 
