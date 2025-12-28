@@ -2,8 +2,8 @@ package com.woxloi.trainplugin
 
 import com.woxloi.trainplugin.command.StationCommand
 import com.woxloi.trainplugin.command.TrainCommand
-import com.woxloi.trainplugin.listener.BoardListener
 import com.woxloi.trainplugin.listener.ArrivalListener
+import com.woxloi.trainplugin.listener.BoardListener
 import com.woxloi.trainplugin.station.StationManager
 import org.bukkit.plugin.java.JavaPlugin
 
