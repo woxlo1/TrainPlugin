@@ -84,7 +84,8 @@ class Train(
                 entity!!.teleport(entity!!.location.add(dx, dy, dz))
                 count++
             },
-            0L, 1L
+            0L,
+            1L
         )
     }
 

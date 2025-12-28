@@ -19,7 +19,7 @@ class BoardListener : Listener {
             val trainId = entity.customName!!.removePrefix("Train-")
             val train = TrainManager.getTrain(trainId)
             if (train != null) {
-                //train.addPassenger(player) // Train.kt に addPassenger を用意する
+                // train.addPassenger(player) // Train.kt に addPassenger を用意する
                 player.sendMessage("${TrainPlugin.prefix}電車 $trainId に乗車しました")
             }
         }

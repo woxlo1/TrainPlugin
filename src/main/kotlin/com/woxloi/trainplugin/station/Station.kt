@@ -14,7 +14,9 @@ data class Station(
     fun toLocation(): Location {
         return Location(
             org.bukkit.Bukkit.getWorld(world),
-            x, y, z
+            x,
+            y,
+            z
         )
     }
 }
