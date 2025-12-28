@@ -1,9 +1,10 @@
 package com.woxloi.trainplugin
 
-import com.woxloi.trainplugin.command.TrainCommand
 import com.woxloi.trainplugin.command.StationCommand
+import com.woxloi.trainplugin.command.TrainCommand
 import com.woxloi.trainplugin.listener.BoardListener
 import com.woxloi.trainplugin.listener.ArrivalListener
+import com.woxloi.trainplugin.station.StationManager
 import org.bukkit.plugin.java.JavaPlugin
 
 class TrainPlugin : JavaPlugin() {
@@ -24,7 +25,6 @@ class TrainPlugin : JavaPlugin() {
 
         // マネージャのロード
         StationManager.load()
-        RouteManager.load()
 
         // コマンド登録（prefix は各コマンド内部で利用可能）
         getCommand("train")?.setExecutor(TrainCommand())
@@ -40,7 +40,6 @@ class TrainPlugin : JavaPlugin() {
     override fun onDisable() {
         // データ保存
         StationManager.save()
-        RouteManager.save()
 
         logger.info("${prefix}無効化完了")
     }
